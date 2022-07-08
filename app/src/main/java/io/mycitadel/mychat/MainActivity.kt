@@ -1,5 +1,6 @@
 package io.mycitadel.mychat
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,15 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.mycitadel.mychat.ui.theme.MyChatTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,14 +35,46 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyChatApp() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        MessageList()
-    }
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        drawerContent = { Text("MyChat") },
+        topBar = {
+            SmallTopAppBar(
+                title = { Text("#general") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            scope.launch { scaffoldState.drawerState.open() }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Localized description")
+                    }
+                }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* fab click handler */ }
+            ) {
+                Icon(Icons.Filled.Add,"")
+            }
+        },
+        content = {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                MessageList()
+            }
+        }
+    )
 }
 
 @Composable
@@ -70,6 +106,14 @@ fun MessageRow(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
+    MyChatTheme {
+        MyChatApp()
+    }
+}
+
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun DarkPreview() {
     MyChatTheme {
         MyChatApp()
     }
